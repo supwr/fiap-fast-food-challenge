@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  db:
+    container_name: postgres.fast-food.dev
+    image: postgres:latest
+    env_file: .env
+    environment:
+      POSTGRES_DB: $DATABASE_NAME
+      POSTGRES_USER: $DATABASE_USERNAME
+      POSTGRES_PASSWORD: $DATABASE_PASSWORD
+    volumes:
+      - postgres_ff_data:/data/postgres
+    ports:
+      - 5432:5432
+    networks:
+      - fast_food
+  app:
+    container_name: app.fast-food.dev
+    env_file: .env
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    networks:
+      - fast_food
+
+volumes:
+  postgres_ff_data:
+
+networks:
+  fast_food:
+

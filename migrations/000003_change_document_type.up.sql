@@ -1,0 +1,1 @@
+ALTER TABLE sc_fast_food.customers ALTER COLUMN document TYPE VARCHAR(15);
