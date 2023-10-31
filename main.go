@@ -2,21 +2,17 @@ package main
 
 import (
 	server "github.com/supwr/fiap-fast-food-challenge/src/application/api"
-	"github.com/supwr/fiap-fast-food-challenge/src/domain/service"
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/config"
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/database/migration"
 	"go.uber.org/fx"
-	"gorm.io/gorm"
-	"log/slog"
 )
 
 type AppArgs struct {
 	fx.In
 
-	Cfg             config.Config
-	Logger          *slog.Logger
-	Db              *gorm.DB
-	CustomerService *service.CustomerService
+	Cfg       config.Config
+	Migration *migration.Migration
+	Api       *server.App
 }
 
 const devEnv = "DEV"
@@ -34,15 +30,13 @@ func main() {
 
 func runAPI(args AppArgs) {
 	if args.Cfg.Environment == devEnv {
-		migrate(args.Db, args.Cfg, args.Logger)
+		migrate(args.Migration)
 	}
 
-	api := server.NewApp(args.CustomerService, args.Logger)
-	api.Run()
+	args.Api.Run()
 }
 
-func migrate(db *gorm.DB, cfg config.Config, logger *slog.Logger) {
-	m := migration.NewMigration(db, cfg, logger)
+func migrate(m *migration.Migration) {
 	m.CreateSchema()
 	m.Migrate()
 }

@@ -4,18 +4,26 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/supwr/fiap-fast-food-challenge/src/domain/service"
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/http/controller"
+	"go.uber.org/fx"
 	"log/slog"
 )
+
+type AppArgs struct {
+	fx.In
+
+	CustomerService *service.CustomerService
+	Logger          *slog.Logger
+}
 
 type App struct {
 	customerService *service.CustomerService
 	logger          *slog.Logger
 }
 
-func NewApp(c *service.CustomerService, l *slog.Logger) *App {
+func NewApp(a AppArgs) *App {
 	return &App{
-		customerService: c,
-		logger:          l,
+		customerService: a.CustomerService,
+		logger:          a.Logger,
 	}
 }
 

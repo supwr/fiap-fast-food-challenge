@@ -54,7 +54,7 @@ func (d *Document) Scan(value interface{}) error {
 	return nil
 }
 
-func (d *Document) Value() (driver.Value, error) {
+func (d Document) Value() (driver.Value, error) {
 	if len(d.value) == 0 {
 		return nil, nil
 	}

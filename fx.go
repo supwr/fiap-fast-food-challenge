@@ -1,9 +1,11 @@
 package main
 
 import (
+	server "github.com/supwr/fiap-fast-food-challenge/src/application/api"
 	"github.com/supwr/fiap-fast-food-challenge/src/domain/contract"
 	"github.com/supwr/fiap-fast-food-challenge/src/domain/service"
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/config"
+	"github.com/supwr/fiap-fast-food-challenge/src/infra/database/migration"
 	database "github.com/supwr/fiap-fast-food-challenge/src/infra/database/postgres"
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/repository"
 	"go.uber.org/fx"
@@ -18,6 +20,8 @@ func createApp(o ...fx.Option) *fx.App {
 			newConfig,
 			newLogger,
 			newConnection,
+			newMigration,
+			newApp,
 
 			// repositories
 			fx.Annotate(
@@ -45,4 +49,12 @@ func newConnection(cfg config.Config) (*gorm.DB, error) {
 	return database.NewConnection(
 		cfg,
 	)
+}
+
+func newMigration(db *gorm.DB, cfg config.Config, logger *slog.Logger) *migration.Migration {
+	return migration.NewMigration(db, cfg, logger)
+}
+
+func newApp(args server.AppArgs) *server.App {
+	return server.NewApp(args)
 }

@@ -2,7 +2,9 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/supwr/fiap-fast-food-challenge/src/domain/entity"
 	"github.com/supwr/fiap-fast-food-challenge/src/domain/service"
+	"github.com/supwr/fiap-fast-food-challenge/src/domain/valueobject"
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/http/dto"
 	"log/slog"
 	"net/http"
@@ -51,10 +53,42 @@ func (c *CustomerController) GetCustomerById(ctx *gin.Context) {
 
 func (c *CustomerController) CreateCustomer(ctx *gin.Context) {
 	var body dto.Customer
+	var err error
 
-	if err := ctx.BindJSON(&body); err != nil {
+	if err = ctx.BindJSON(&body); err != nil {
 		c.logger.Error("error reading body", slog.Any("error", err))
 		ctx.JSON(http.StatusInternalServerError, nil)
+		return
+	}
+
+	validation := validate(body).Errors
+	if len(validation) > 0 {
+		c.logger.Error("invalid payload", slog.Any("error", err))
+		ctx.JSON(http.StatusBadRequest, validation)
+		return
+	}
+
+	document, err := valueobject.NewDocument(body.Document)
+	if err != nil {
+		c.logger.Error("error reading body", slog.Any("error", err))
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid document",
+		})
+		return
+	}
+
+	customer := &entity.Customer{
+		Name:     body.Name,
+		Document: *document,
+		Email:    body.Email,
+	}
+
+	err = c.customerService.Create(customer)
+	if err != nil {
+		c.logger.Error("error creating customer", slog.Any("error", err))
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "error creating customer",
+		})
 		return
 	}
 
