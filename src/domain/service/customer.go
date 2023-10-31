@@ -6,10 +6,10 @@ import (
 )
 
 type CustomerService struct {
-	repository contract.CustomerReposity
+	repository contract.CustomerRepository
 }
 
-func NewCustomerService(r contract.CustomerReposity) *CustomerService {
+func NewCustomerService(r contract.CustomerRepository) *CustomerService {
 	return &CustomerService{
 		repository: r,
 	}
