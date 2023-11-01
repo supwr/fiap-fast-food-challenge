@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/shopspring/decimal"
 	server "github.com/supwr/fiap-fast-food-challenge/src/application/api"
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/config"
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/database/migration"
@@ -18,6 +19,8 @@ type AppArgs struct {
 const devEnv = "DEV"
 
 func main() {
+	decimal.MarshalJSONWithoutQuotes = true
+
 	app := createApp(
 		fx.Invoke(
 			runAPI,

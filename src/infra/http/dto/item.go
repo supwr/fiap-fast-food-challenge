@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/govalues/decimal"
+	"github.com/shopspring/decimal"
 	"github.com/supwr/fiap-fast-food-challenge/src/domain/entity"
 	"github.com/supwr/fiap-fast-food-challenge/src/domain/valueobject"
 )
@@ -24,15 +24,10 @@ func (i *Item) ToEntity() (*entity.Item, error) {
 		}
 	}
 
-	price, err := decimal.NewFromFloat64(i.Price)
-	if err != nil {
-		return nil, err
-	}
-
 	return &entity.Item{
 		Name:        i.Name,
 		Description: i.Description,
 		Type:        iType,
-		Price:       price,
+		Price:       decimal.NewFromFloat(i.Price),
 	}, nil
 }

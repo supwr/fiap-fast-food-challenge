@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"github.com/govalues/decimal"
+	"github.com/shopspring/decimal"
 	"github.com/supwr/fiap-fast-food-challenge/src/domain/valueobject"
 	"time"
 )

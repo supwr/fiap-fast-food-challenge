@@ -1,9 +1,10 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/govalues/decimal"
+	"github.com/shopspring/decimal"
 	"github.com/supwr/fiap-fast-food-challenge/src/domain/entity"
 	"github.com/supwr/fiap-fast-food-challenge/src/domain/service"
 	"github.com/supwr/fiap-fast-food-challenge/src/domain/valueobject"
@@ -26,7 +27,7 @@ func NewItemController(i *service.ItemService, l *slog.Logger) *ItemController {
 }
 
 func (i *ItemController) ListItems(ctx *gin.Context) {
-	//var body []*dto.Item
+	var body []dto.Item
 
 	items, err := i.itemService.List()
 	if err != nil {
@@ -36,14 +37,14 @@ func (i *ItemController) ListItems(ctx *gin.Context) {
 		return
 	}
 
-	//jsonItems, _ := json.Marshal(items)
-	//if err = json.Unmarshal(jsonItems, &body); err != nil {
-	//	i.logger.Error("error enconding item", slog.Any("error", err))
-	//	ctx.JSON(http.StatusInternalServerError, nil)
-	//	return
-	//}
+	jsonItems, _ := json.Marshal(items)
+	if err = json.Unmarshal(jsonItems, &body); err != nil {
+		i.logger.Error("error enconding item", slog.Any("error", err))
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return
+	}
 
-	ctx.JSON(http.StatusOK, items)
+	ctx.JSON(http.StatusOK, body)
 }
 
 func (i *ItemController) GetItemById(ctx *gin.Context) {
@@ -104,15 +105,7 @@ func (i *ItemController) CreateItem(ctx *gin.Context) {
 		return
 	}
 
-	price, err := decimal.NewFromFloat64(body.Price)
-	if err != nil {
-		i.logger.Error("error getting item price", slog.Any("error", err))
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "error creating item",
-		})
-		return
-	}
-
+	price := decimal.NewFromFloat(body.Price)
 	item := &entity.Item{
 		Name:        body.Name,
 		Description: body.Description,
