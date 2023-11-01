@@ -7,6 +7,7 @@ import (
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/config"
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/database/migration"
 	database "github.com/supwr/fiap-fast-food-challenge/src/infra/database/postgres"
+	"github.com/supwr/fiap-fast-food-challenge/src/infra/http/controller"
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/repository"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -29,8 +30,18 @@ func createApp(o ...fx.Option) *fx.App {
 				fx.As(new(contract.CustomerRepository)),
 			),
 
+			fx.Annotate(
+				repository.NewItemRepository,
+				fx.As(new(contract.ItemRepository)),
+			),
+
 			//services
 			service.NewCustomerService,
+			service.NewItemService,
+
+			//controllers
+			controller.NewCustomerController,
+			controller.NewItemController,
 		),
 	}
 

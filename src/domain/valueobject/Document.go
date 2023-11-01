@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 const (
@@ -36,11 +37,11 @@ func (d *Document) validate() error {
 }
 
 func (d *Document) String() string {
-	return d.value
+	return strings.ToUpper(d.value)
 }
 
 func (d *Document) MarshalText() ([]byte, error) {
-	return []byte(d.value), nil
+	return []byte(d.String()), nil
 }
 
 func (d *Document) UnmarshalText(v []byte) error {
@@ -50,14 +51,14 @@ func (d *Document) UnmarshalText(v []byte) error {
 }
 
 func (d *Document) Scan(value interface{}) error {
-	*d = Document{value: fmt.Sprint(value)}
+	*d = Document{value: strings.ToUpper(fmt.Sprint(value))}
 	return nil
 }
 
 func (d Document) Value() (driver.Value, error) {
-	if len(d.value) == 0 {
+	if len(d.String()) == 0 {
 		return nil, nil
 	}
 
-	return d.value, nil
+	return d.String(), nil
 }
