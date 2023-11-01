@@ -14,4 +14,7 @@ type CustomerRepository interface {
 type ItemRepository interface {
 	Create(item *entity.Item) error
 	GetById(id int) (*entity.Item, error)
+	Delete(id int) error
+	Update(id int, item *entity.Item) error
+	List() ([]*entity.Item, error)
 }

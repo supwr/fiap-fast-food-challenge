@@ -23,19 +23,8 @@ func NewCustomerController(c *service.CustomerService, l *slog.Logger) *Customer
 	}
 }
 
-func (c *CustomerController) GetCustomer(ctx *gin.Context) {
-	if len(ctx.Param("id")) > 0 {
-		c.GetCustomerById(ctx)
-		return
-	}
-
-	c.GetCustomerByDocument(ctx)
-	return
-}
-
 func (c *CustomerController) GetCustomerById(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
@@ -117,7 +106,7 @@ func (c *CustomerController) CreateCustomer(ctx *gin.Context) {
 
 	customer := &entity.Customer{
 		Name:     body.Name,
-		Document: *document,
+		Document: document,
 		Email:    body.Email,
 	}
 

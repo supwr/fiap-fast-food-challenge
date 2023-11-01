@@ -10,6 +10,7 @@ import (
 	"github.com/supwr/fiap-fast-food-challenge/src/infra/http/dto"
 	"log/slog"
 	"net/http"
+	"strconv"
 )
 
 type ItemController struct {
@@ -22,6 +23,53 @@ func NewItemController(i *service.ItemService, l *slog.Logger) *ItemController {
 		itemService: i,
 		logger:      l,
 	}
+}
+
+func (i *ItemController) ListItems(ctx *gin.Context) {
+	//var body []*dto.Item
+
+	items, err := i.itemService.List()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	//jsonItems, _ := json.Marshal(items)
+	//if err = json.Unmarshal(jsonItems, &body); err != nil {
+	//	i.logger.Error("error enconding item", slog.Any("error", err))
+	//	ctx.JSON(http.StatusInternalServerError, nil)
+	//	return
+	//}
+
+	ctx.JSON(http.StatusOK, items)
+}
+
+func (i *ItemController) GetItemById(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+
+		return
+	}
+
+	item, err := i.itemService.GetById(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	if item == nil {
+		ctx.JSON(http.StatusNotFound, nil)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, item)
 }
 
 func (i *ItemController) CreateItem(ctx *gin.Context) {
@@ -68,7 +116,7 @@ func (i *ItemController) CreateItem(ctx *gin.Context) {
 	item := &entity.Item{
 		Name:        body.Name,
 		Description: body.Description,
-		Type:        *itemType,
+		Type:        itemType,
 		Price:       price,
 		Active:      true,
 	}
@@ -82,4 +130,63 @@ func (i *ItemController) CreateItem(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, body)
+}
+
+func (i *ItemController) DeleteItem(ctx *gin.Context) {
+	var err error
+
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+
+		return
+	}
+
+	if err = i.itemService.Delete(id); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, nil)
+}
+
+func (i *ItemController) PatchItem(ctx *gin.Context) {
+	var item *entity.Item
+	var body dto.Item
+	var err error
+
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+
+		return
+	}
+
+	if err = ctx.BindJSON(&body); err != nil {
+		i.logger.Error("error reading body", slog.Any("error", err))
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return
+	}
+
+	item, err = body.ToEntity()
+	if err != nil {
+		i.logger.Error("error getting item", slog.Any("error", err))
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return
+	}
+
+	if err = i.itemService.Update(id, item); err != nil {
+		i.logger.Error("error updating item", slog.Any("error", err))
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, item)
 }

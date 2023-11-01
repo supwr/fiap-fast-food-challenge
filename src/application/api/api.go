@@ -38,6 +38,10 @@ func (a *App) Run() {
 	app.POST("/customers", a.customerController.CreateCustomer)
 
 	app.POST("/items", a.itemController.CreateItem)
+	app.DELETE("/items/:id", a.itemController.DeleteItem)
+	app.PATCH("/items/:id", a.itemController.PatchItem)
+	app.GET("/items/:id", a.itemController.GetItemById)
+	app.GET("/items", a.itemController.ListItems)
 
 	// app run
 	app.Run()
